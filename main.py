@@ -1,52 +1,50 @@
 import streamlit as st
-from trading import *
-from datetime import date
+from streamlit_option_menu import option_menu
+from moving_average_app import run_ma_app
+from moving_RSI import run_rsi_app
 
-st.write("## Moving Average Strategy")
+# Top navbar
+selected = option_menu(
+    menu_title=None,
+    options=["Main", "Moving Average", "RSI"],
+    icons=["house", "graph-up", "activity"],
+    menu_icon="cast",  
+    orientation="horizontal"
+)
 
-ticker = st.text_input("Enter ticker symbol")
+if selected == "Main":
+    st.title("🏠 Main Dashboard")
+    st.write("Welcome to my dashboard!")
 
-col1, col2 = st.columns(2)
-with col1:
-    start = st.date_input("Start date", value=date.today())
-with col2:
-    end = st.date_input("End date", value=date.today())
+    st.markdown("""
+    This app allows you to run two trading strategies — **Moving Average** and **RSI** — and customize their parameters to analyze performance.
 
-short_ma_options = [3, 5, 7, 10, 15, 20, 25, 30]
-long_ma_options = [30, 40, 50, 60, 70, 80, 90, 100, 120, 150, 200]
+    ---
 
-col3, col4 = st.columns(2)
-with col3:
-    short_ma = st.selectbox("Short MA window", options=short_ma_options, index=3)  
-with col4:
-    long_ma = st.selectbox("Long MA window", options=long_ma_options, index=2) 
+    ### 📈 Moving Average Strategy  
+    This strategy is based on two moving averages: a short-term and a long-term one.  
+    - A **buy signal** is triggered when the short-term moving average crosses **above** the long-term moving average (bullish crossover).  
+    - A **sell signal** is triggered when the short-term moving average crosses **below** the long-term moving average (bearish crossover).  
+    - Toward the end of the app, you can also choose to **optimize performance metrics** of your choice (e.g., Sharpe Ratio or Total Return).
 
-if not ticker:
-    st.warning("⚠️ Please enter a ticker symbol.")
-elif start > end:
-    st.warning("⚠️ Start date must be before or equal to End date.")
-elif short_ma >= long_ma:
-    st.warning("⚠️ Short MA must be less than Long MA.")
-else:
-    if st.button("Run Analysis"):
-        start_str = start.strftime("%Y-%m-%d")
-        end_str = end.strftime("%Y-%m-%d")
-        df_result = run_moving_average_strategy(ticker, start_str, end_str, short_ma, long_ma)
-        total_return,sharpe_ratio, annualized_vol, max_drawdown,information_ratio,num_trades = evaluate_strategy_performance(df_result)
-        st.write("---")
-        fig = plot_strategy(df_result, short_ma, long_ma)
-        st.pyplot(fig)
-        a, b, c = st.columns(3)
-        d, e, f = st.columns(3)
-        st.markdown("### Strategy Performance Results")
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Total Return", f"{round((total_return) * 100, 2)}%", border=True)
-        col2.metric("Sharpe Ratio", f"{round(sharpe_ratio, 2)}", border=True)
-        col3.metric("Max Drawdown", f"{round(max_drawdown * 100, 2)}%", border=True)
+    ---
 
-        col4, col5, col6 = st.columns(3)
-        col4.metric("Information Ratio", f"{round(information_ratio, 2)}", border=True)
-        col5.metric("Annualized Volatility", f"{round(annualized_vol * 100, 2)}%", border=True)
-        col6.metric("Number of Trades", str(num_trades), border=True)
+    ### 💡 RSI Strategy (Relative Strength Index)  
+    The RSI strategy identifies **overbought** and **oversold** conditions in the market.  
+    - A **buy signal** is generated when the RSI falls **below a lower threshold** (e.g., 30), suggesting the asset is oversold.  
+    - A **sell signal** is triggered when the RSI rises **above an upper threshold** (e.g., 70), suggesting the asset is overbought.  
+    - This strategy also includes an **exit buffer**, allowing you to exit trades earlier at more moderate RSI levels. 
+
+    ---
+    """)
+    st.markdown("Developed by **jinsh3ng**")
 
 
+
+elif selected == "Moving Average":
+    st.title("📉 Moving Average Strategy")
+    run_ma_app()
+
+elif selected == "RSI":
+    st.title("📊 RSI Indicator")
+    run_rsi_app()

@@ -2,6 +2,7 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 def load_price_data(ticker, start_date, end_date):
     data = yf.download(ticker, start=start_date, end=end_date)
@@ -35,15 +36,16 @@ def run_moving_average_strategy(ticker, start_date, end_date, short_ma, long_ma)
 
 def evaluate_strategy_performance(df):
     df_results = df.copy()
+    strategy_returns = df['StrategyReturns'].pct_change().dropna()
 
     #Total Return
     total_return = (df_results["StrategyReturns"].iloc[-1]/df_results["StrategyReturns"].iloc[0])-1
 
     #Sharpe Ratio
-    sharpe_ratio = ((df_results["StrategyReturns"].mean()) / (df_results["StrategyReturns"].std()))*np.sqrt(252)
+    sharpe_ratio = ((strategy_returns.mean()) / (strategy_returns.std()))*np.sqrt(252)
     
     #Annualized Vol
-    annualized_vol = df_results["StrategyReturns"].std() * np.sqrt(252)
+    annualized_vol = strategy_returns.std() * np.sqrt(252)
 
     #Max Drawdown
     df_results["StrategyReturnsMax"] = df_results["StrategyReturns"].cummax()
@@ -51,8 +53,8 @@ def evaluate_strategy_performance(df):
     max_drawdown = df_results["Drawdown"].min()
     
     #Information Ratio
-    mean_active_returns = (df_results["StrategyReturns"] - df_results["Returns"]).mean()
-    tracking_error = (df_results["StrategyReturns"] - df_results["Returns"]).std()
+    mean_active_returns = (strategy_returns - df_results["Returns"]).mean()
+    tracking_error = (strategy_returns - df_results["Returns"]).std()
     information_ratio = mean_active_returns/tracking_error
 
     #Number of Trades
@@ -113,3 +115,44 @@ def plot_strategy(df, short_ma, long_ma):
     plt.tight_layout()
     plt.show()
     return fig
+
+def grid_search_optimal_ma(ticker, start, end, metric):
+    short_ma_options = [3, 5, 7, 10, 15, 20, 25, 30]
+    long_ma_options = [30, 40, 50, 60, 70, 80, 90, 100, 120, 150, 200]
+
+    best_metric_value = None
+    best_params = None
+    best_df_result = None
+
+    for short_ma in short_ma_options:
+        for long_ma in long_ma_options:
+            if short_ma >= long_ma:
+                continue
+
+            df_result = run_moving_average_strategy(ticker, start, end, short_ma, long_ma)
+
+            total_return, sharpe_ratio, annualized_vol, max_drawdown, information_ratio, num_trades = evaluate_strategy_performance(df_result)
+
+            current_metric = None
+            if metric == "Total Return":
+                current_metric = total_return
+                better = (best_metric_value is None) or (current_metric > best_metric_value)
+            elif metric == "Sharpe Ratio":
+                current_metric = sharpe_ratio
+                better = (best_metric_value is None) or (current_metric > best_metric_value)
+            elif metric == "Information Ratio":
+                current_metric = information_ratio
+                better = (best_metric_value is None) or (current_metric > best_metric_value)
+            elif metric == "Drawdown":
+                current_metric = max_drawdown
+                # For drawdown, smaller (more negative) is worse
+                better = (best_metric_value is None) or (current_metric > best_metric_value)  
+            else:
+                raise ValueError(f"Unknown metric: {metric}")
+
+            if better:
+                best_metric_value = current_metric
+                best_params = (short_ma, long_ma)
+
+    return best_params, best_metric_value
+
