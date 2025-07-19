@@ -40,7 +40,7 @@ else:
         d, e, f = st.columns(3)
         st.markdown("### Strategy Performance Results")
         col1, col2, col3 = st.columns(3)
-        col1.metric("Total Return", f"{round((total_return - 1) * 100, 2)}%", border=True)
+        col1.metric("Total Return", f"{round((total_return) * 100, 2)}%", border=True)
         col2.metric("Sharpe Ratio", f"{round(sharpe_ratio, 2)}", border=True)
         col3.metric("Max Drawdown", f"{round(max_drawdown * 100, 2)}%", border=True)
 
