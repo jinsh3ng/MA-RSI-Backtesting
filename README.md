@@ -11,10 +11,6 @@
   </tr>
 </table>
 
-A Streamlit application to backtest moving average and RSI strategies using historical stock price data.
-
----
-
 ## ⚙️ Setup Instructions
 
 1. In the /MA-RSI-Backtesting directory, create a Python virtual environment and activate it:
