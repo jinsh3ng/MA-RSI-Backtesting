@@ -3,7 +3,6 @@ from trading_RSI import *
 from datetime import date
 
 def run_rsi_app():
-    st.title("RSI Trading Strategy")
 
     ticker = st.text_input("Enter ticker symbol", key="ticker_input")
 

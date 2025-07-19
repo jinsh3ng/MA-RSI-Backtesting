@@ -46,5 +46,5 @@ elif selected == "Moving Average":
     run_ma_app()
 
 elif selected == "RSI":
-    st.title("📊 RSI Indicator")
+    st.title("📊 RSI Trading Strategy")
     run_rsi_app()
