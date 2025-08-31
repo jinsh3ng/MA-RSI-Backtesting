@@ -3,7 +3,7 @@ from streamlit_option_menu import option_menu
 from moving_average_app import run_ma_app
 from moving_RSI import run_rsi_app
 
-# Top navbar
+# Create a horizontal top navigation bar with three options: Main, Moving Average, and RSI
 selected = option_menu(
     menu_title=None,
     options=["Main", "Moving Average", "RSI"],
@@ -12,10 +12,12 @@ selected = option_menu(
     orientation="horizontal"
 )
 
+# Render the Main Dashboard page
 if selected == "Main":
     st.title("🏠 Main Dashboard")
     st.write("Welcome to my dashboard!")
 
+    # Markdown explanation for the app, including the two trading strategies
     st.markdown("""
     This app allows you to run two trading strategies — **Moving Average** and **RSI** — and customize their parameters to analyze performance.
 
@@ -39,12 +41,12 @@ if selected == "Main":
     """)
     st.markdown("Developed by **jinsh3ng**")
 
-
-
+# Render the Moving Average Strategy page and run the associated app function
 elif selected == "Moving Average":
     st.title("📉 Moving Average Strategy")
     run_ma_app()
 
+# Render the RSI Strategy page and run the associated app function
 elif selected == "RSI":
     st.title("📊 RSI Trading Strategy")
     run_rsi_app()
