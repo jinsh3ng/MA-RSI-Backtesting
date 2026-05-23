@@ -1,5 +1,6 @@
 import streamlit as st
 from trading_moving_average import *
+from utils import evaluate_strategy_performance
 from datetime import date
 
 def run_ma_app():

@@ -1,5 +1,6 @@
 import streamlit as st
-from trading_RSI import *
+from trading_RSI import run_RSI_strategy, plot_strategy
+from utils import load_price_data, evaluate_strategy_performance
 from datetime import date
 
 def run_rsi_app():
@@ -16,7 +17,7 @@ def run_rsi_app():
     with col3:
         rsi_period = st.selectbox("RSI Period", options=[5, 10, 14, 21], index=2)
     with col4:
-        exit = st.slider("Exit Threshold", min_value=1, max_value=30, value=10)
+        exit_threshold = st.slider("Exit Threshold", min_value=1, max_value=30, value=10)
 
     col5, col6 = st.columns(2)
     with col5:
@@ -41,12 +42,12 @@ def run_rsi_app():
                     period=rsi_period,
                     upper_bound=upper_bound,
                     lower_bound=lower_bound,
-                    exit=exit
+                    exit_threshold=exit_threshold
                 )
 
                 total_return, sharpe_ratio, annualized_vol, max_drawdown, information_ratio, num_trades = evaluate_strategy_performance(df_result)
 
-            fig = plot_strategy(df_result, upper_bound, lower_bound, exit)
+            fig = plot_strategy(df_result, upper_bound, lower_bound, exit_threshold)
             st.pyplot(fig)
 
             st.markdown("### Strategy Performance Results")
